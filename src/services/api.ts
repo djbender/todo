@@ -31,7 +31,7 @@ export const todosApi = createApi({
           return { error: { status: 500, data: 'Failed to fetch todo' } };
         }
       },
-      providesTags: (result, error, id) => [{ type: 'Todo', id }],
+      providesTags: (_result, _error, id) => [{ type: 'Todo', id }],
     }),
 
     createTodo: builder.mutation<Todo, string>({
@@ -55,7 +55,7 @@ export const todosApi = createApi({
           return { error: { status: 500, data: 'Failed to update todo' } };
         }
       },
-      invalidatesTags: (result, error, { id }) => [{ type: 'Todo', id }, 'Todo'],
+      invalidatesTags: (_result, _error, { id }) => [{ type: 'Todo', id }, 'Todo'],
     }),
 
     deleteTodo: builder.mutation<void, string>({
