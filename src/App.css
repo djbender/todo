@@ -222,7 +222,11 @@ main {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.todo-form button:hover:not(:disabled),
+.todo-form button:hover:not(:disabled) {
+  transform: translateZ(12px) translateY(-2px) scale(1.05);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
 .todo-item button:hover {
   transform: translateZ(6px) translateY(-1px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
@@ -289,13 +293,23 @@ main {
   justify-content: center;
 }
 
+.todo-item input[type="checkbox"]::after {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  right: -15px;
+  bottom: -15px;
+  border: none;
+}
+
 .todo-item input[type="checkbox"]:hover {
   transform: translateZ(50px) scale(1.5);
   box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.1), 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
 .todo-item input[type="checkbox"]:active {
-  transform: translateZ(-30px) scale(0.7);
+  transform: translateZ(-30px) scale(1.2);
   box-shadow: inset 0 10px 20px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
@@ -360,6 +374,70 @@ main {
   text-align: center;
   opacity: 0.6;
   padding: 1.5rem;
+}
+
+/* Toast notifications */
+.toast-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--accent-bg);
+  border: 2px solid var(--border);
+  border-radius: 0.25rem;
+  padding: 1rem;
+  min-width: 250px;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  pointer-events: auto;
+  transform: translateZ(0);
+  animation: toastSlideIn 0.3s ease;
+}
+
+.toast.error {
+  border-color: #dc3545;
+}
+
+.toast.success {
+  border-color: #28a745;
+}
+
+:root[data-theme="light"] .toast.error {
+  background: #fff5f5;
+  color: #721c24;
+}
+
+:root[data-theme="light"] .toast.success {
+  background: #f0fff4;
+  color: #155724;
+}
+
+:root[data-theme="dark"] .toast.error {
+  background: #4a1f1f;
+  color: #ffcccc;
+}
+
+:root[data-theme="dark"] .toast.success {
+  background: #1f4a2c;
+  color: #ccffcc;
+}
+
+@keyframes toastSlideIn {
+  from {
+    transform: translateX(400px) translateZ(0);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) translateZ(0);
+    opacity: 1;
+  }
 }
 
 /* Accessibility: Disable 3D animations for users who prefer reduced motion */

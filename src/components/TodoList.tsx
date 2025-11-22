@@ -6,6 +6,7 @@ import {
   useDeleteTodoMutation,
 } from '../services/api';
 import { DarkModeToggle } from './DarkModeToggle';
+import { toast } from './Toast';
 
 interface Todo {
   id: string;
@@ -90,6 +91,7 @@ export const TodoList: React.FC = () => {
       setNewTodoTitle('');
     } catch (err) {
       console.error('Failed to create todo:', err);
+      toast.error('Failed to create todo');
     }
   };
 
@@ -98,6 +100,7 @@ export const TodoList: React.FC = () => {
       await updateTodo({ id, updates: { completed: !completed } }).unwrap();
     } catch (err) {
       console.error('Failed to update todo:', err);
+      toast.error('Failed to update todo');
     }
   };
 
@@ -106,6 +109,7 @@ export const TodoList: React.FC = () => {
       await deleteTodo(id).unwrap();
     } catch (err) {
       console.error('Failed to delete todo:', err);
+      toast.error('Failed to delete todo');
     }
   };
 
