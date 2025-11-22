@@ -26,5 +26,5 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=3s \
   CMD wget --quiet --tries=1 --spider http://localhost:5000/ || exit 1
 
-# Start nginx on port 5000
-CMD sed -i "s/listen 80;/listen $PORT;/" /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
