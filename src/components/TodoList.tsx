@@ -5,6 +5,7 @@ import {
   useUpdateTodoMutation,
   useDeleteTodoMutation,
 } from '../services/api';
+import { DarkModeToggle } from './DarkModeToggle';
 
 export const TodoList: React.FC = () => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
@@ -52,7 +53,10 @@ export const TodoList: React.FC = () => {
 
   return (
     <main>
-      <h1>My Todo List</h1>
+      <header>
+        <h1>My Todo List</h1>
+        <DarkModeToggle />
+      </header>
 
       <form onSubmit={handleSubmit} className="todo-form">
         <input
