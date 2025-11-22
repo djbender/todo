@@ -87,7 +87,21 @@ export const todosApi = createApi({
           return { error: { status: 500, data: 'Failed to update todo' } };
         }
       },
-      invalidatesTags: (_result, _error, { id }) => [{ type: 'Todo', id }],
+      async onQueryStarted({ id, updates }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          todosApi.util.updateQueryData('getTodos', undefined, (draft) => {
+            const todo = draft.find((t) => t.id === id);
+            if (todo) {
+              Object.assign(todo, updates);
+            }
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
     }),
 
     deleteTodo: builder.mutation<void, string>({

@@ -5,6 +5,7 @@ import type { Todo } from '../types/todo';
 let todos: Todo[] = [
   { id: nanoid(), title: 'Learn RTK Query', completed: false },
   { id: nanoid(), title: 'Build a todo app', completed: false },
+  { id: 'fail-test', title: '[TEST] This update always fails', completed: false },
 ];
 
 // Helper to simulate network delay
@@ -42,6 +43,13 @@ export const mockApi = {
   async updateTodo(id: string, updates: Partial<Todo>): Promise<Todo> {
     console.log('[Mock API] PATCH /todos/' + id, updates);
     await delay(500);
+
+    // Test case: always fail updates to the test item
+    if (id === 'fail-test') {
+      console.log('[Mock API] Response: Error - simulated failure');
+      throw new Error('Simulated update failure');
+    }
+
     const index = todos.findIndex(todo => todo.id === id);
     if (index === -1) throw new Error('Todo not found');
     todos[index] = { ...todos[index], ...updates };
