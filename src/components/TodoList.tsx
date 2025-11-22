@@ -43,15 +43,15 @@ export const TodoList: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div className="loading">Loading todos...</div>;
+    return <main><p>Loading todos...</p></main>;
   }
 
   if (isError) {
-    return <div className="error">Error: {JSON.stringify(error)}</div>;
+    return <main><mark>Error: {JSON.stringify(error)}</mark></main>;
   }
 
   return (
-    <div className="todo-container">
+    <main>
       <h1>My Todo List</h1>
 
       <form onSubmit={handleSubmit} className="todo-form">
@@ -86,6 +86,6 @@ export const TodoList: React.FC = () => {
       {todos?.length === 0 && (
         <p className="empty-state">No todos yet. Add one to get started!</p>
       )}
-    </div>
+    </main>
   );
 };

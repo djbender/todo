@@ -1,55 +1,13 @@
-.App {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-}
-
-.todo-container {
-  background: light-dark(white, #1a1a1a);
-  border-radius: 8px;
-  padding: 24px;
-  box-shadow: 0 2px 8px light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5));
-}
-
-h1 {
-  color: light-dark(#333, #fff);
-  margin-bottom: 24px;
-}
+/* Simple.css provides most styling, minimal overrides needed */
 
 .todo-form {
   display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .todo-form input {
   flex: 1;
-  padding: 10px;
-  border: 1px solid light-dark(#ddd, #444);
-  border-radius: 4px;
-  font-size: 14px;
-  background: light-dark(white, #2a2a2a);
-  color: light-dark(#000, #fff);
-}
-
-.todo-form button {
-  padding: 10px 20px;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.todo-form button:hover {
-  background: #0056b3;
-}
-
-.todo-form button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
 }
 
 .todo-list {
@@ -61,9 +19,9 @@ h1 {
 .todo-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border-bottom: 1px solid light-dark(#eee, #333);
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
 }
 
 .todo-item:last-child {
@@ -76,43 +34,15 @@ h1 {
 
 .todo-item span {
   flex: 1;
-  font-size: 16px;
-  color: light-dark(#000, #fff);
 }
 
 .todo-item span.completed {
   text-decoration: line-through;
-  color: light-dark(#888, #888);
-}
-
-.todo-item button {
-  padding: 6px 12px;
-  background: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.todo-item button:hover {
-  background: #c82333;
-}
-
-.loading,
-.error {
-  text-align: center;
-  padding: 24px;
-  font-size: 16px;
-  color: light-dark(#000, #fff);
-}
-
-.error {
-  color: light-dark(#dc3545, #ff6b6b);
+  opacity: 0.6;
 }
 
 .empty-state {
   text-align: center;
-  color: light-dark(#888, #888);
-  padding: 24px;
+  opacity: 0.6;
+  padding: 1.5rem;
 }
