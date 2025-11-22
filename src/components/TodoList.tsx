@@ -124,7 +124,7 @@ export const TodoList: React.FC = () => {
   return (
     <main>
       <header>
-        <h1>My Todo List</h1>
+        <h1>Todo</h1>
         <DarkModeToggle />
       </header>
 
