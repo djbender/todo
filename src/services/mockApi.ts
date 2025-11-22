@@ -1,9 +1,10 @@
+import { nanoid } from '@reduxjs/toolkit';
 import type { Todo } from '../types/todo';
 
 // Simulated database
 let todos: Todo[] = [
-  { id: '1', title: 'Learn RTK Query', completed: false },
-  { id: '2', title: 'Build a todo app', completed: false },
+  { id: nanoid(), title: 'Learn RTK Query', completed: false },
+  { id: nanoid(), title: 'Build a todo app', completed: false },
 ];
 
 // Helper to simulate network delay
@@ -29,7 +30,7 @@ export const mockApi = {
     console.log('[Mock API] POST /todos', { title });
     await delay(500);
     const newTodo: Todo = {
-      id: Date.now().toString(),
+      id: nanoid(),
       title,
       completed: false,
     };

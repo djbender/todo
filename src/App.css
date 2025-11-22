@@ -1,5 +1,14 @@
 /* Simple.css provides most styling, minimal overrides needed */
 
+/* Smooth theme transition */
+:root {
+  transition: background-color 2s ease, color 2s ease;
+}
+
+body {
+  transition: background-color 2s ease, color 2s ease;
+}
+
 /* Dark mode override - use data-theme attribute instead of prefers-color-scheme */
 :root[data-theme="dark"] {
   --bg: #212121;
@@ -31,6 +40,12 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  perspective: 1000px;
+}
+
+main {
+  perspective: 1200px;
+  perspective-origin: center top;
 }
 
 .theme-toggle {
@@ -63,6 +78,19 @@ header {
   gap: 0.25rem;
   min-height: 44px;
   align-items: center;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.34, 0, 0.15, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), inset 0 -2px 4px rgba(0, 0, 0, 0.05);
+  will-change: transform;
+}
+
+.theme-toggle input[type="checkbox"]:checked ~ .theme-toggle-slider {
+  transform: rotateY(10deg) rotateX(-10deg) rotateZ(6deg);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12), inset 0 -2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.theme-toggle input[type="checkbox"]:not(:checked) ~ .theme-toggle-slider {
+  transform: rotateY(-25deg) rotateX(-20deg) rotateZ(-2deg);
 }
 
 @keyframes slideToRight {
@@ -127,6 +155,8 @@ header {
   height: calc(100% - 0.5rem);
   z-index: 0;
   width: calc(50% - 0.375rem);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transform: translateZ(2px);
 }
 
 .theme-toggle-slider[data-checked="false"]::before {
@@ -141,44 +171,101 @@ header {
   padding: 0.5rem 1rem;
   border-radius: 1.5rem;
   font-size: 0.875rem;
-  transition: color 0.2s ease, transform 0.1s ease;
+  transition: color 0.2s ease, transform 0.1s ease, text-shadow 0.2s ease;
   z-index: 1;
   white-space: nowrap;
   position: relative;
+  transform-style: preserve-3d;
 }
 
 .theme-toggle-option[data-active="true"] {
   color: var(--bg);
-  transform: scale(1);
+  transform: scale(1) translateZ(4px);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .theme-toggle-option[data-active="false"] {
   color: var(--text-light);
-  transform: scale(0.95);
+  transform: scale(0.95) translateZ(0px);
+  text-shadow: none;
 }
 
 .todo-form {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
+  perspective: 800px;
 }
 
 .todo-form input {
   flex: 1;
+  transform: translateZ(0);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.todo-form input:focus {
+  transform: translateZ(16px) translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+  outline: none;
+}
+
+.todo-form input:disabled {
+  transform: translateZ(-4px);
+  opacity: 0.5;
+}
+
+.todo-form button,
+.todo-item button {
+  transform: translateZ(0);
+  transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.1s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.todo-form button:hover:not(:disabled),
+.todo-item button:hover {
+  transform: translateZ(6px) translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.todo-form button:active:not(:disabled),
+.todo-item button:active {
+  transform: translateZ(0px) translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), inset 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.todo-form button:disabled {
+  transform: translateZ(-2px);
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .todo-list {
   list-style: none;
   padding: 0;
   margin: 0;
+  perspective: 1000px;
+  transform-style: preserve-3d;
 }
 
 .todo-item {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 0;
+  padding: 0.75rem;
   border-bottom: 1px solid var(--border);
+  background: var(--accent-bg);
+  margin-bottom: 0.25rem;
+  border-radius: 0.25rem;
+  transform: translateZ(0);
+  transition: transform 0.3s cubic-bezier(0.23, 1, 0.320, 1), box-shadow 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.todo-item:hover {
+  transform: translateZ(16px) rotateX(2deg) rotateZ(-1deg);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
 }
 
 .todo-item:last-child {
@@ -187,19 +274,123 @@ header {
 
 .todo-item input[type="checkbox"] {
   cursor: pointer;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-radius: 3px;
+  background: var(--bg);
+  transform: translateZ(0);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, border-color 0.2s ease;
+  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.todo-item input[type="checkbox"]:hover {
+  transform: translateZ(50px) scale(1.5);
+  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.1), 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.todo-item input[type="checkbox"]:active {
+  transform: translateZ(-30px) scale(0.7);
+  box-shadow: inset 0 10px 20px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.todo-item input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: translateZ(30px) scale(1.3) rotateZ(15deg);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3), 0 15px 30px rgba(0, 0, 0, 0.25);
+}
+
+.todo-item input[type="checkbox"]:checked::before {
+  content: '✓';
+  color: var(--bg);
+  font-size: 14px;
+  font-weight: bold;
 }
 
 .todo-item span {
   flex: 1;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .todo-item span.completed {
   text-decoration: line-through;
   opacity: 0.6;
+  transform: translateZ(-16px) scaleY(0.96) scaleX(0.98);
+  color: var(--text-light);
 }
+
+.todo-item:hover span.completed {
+  transform: translateZ(-8px) scaleY(0.98) scaleX(0.99);
+}
+
+@keyframes itemFadeIn {
+  from {
+    opacity: 0;
+    transform: translateZ(-100px) rotateX(60deg) translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateZ(0) rotateX(0deg) translateY(0);
+  }
+}
+
+.todo-item[data-animated="false"] {
+  animation: itemFadeIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation-fill-mode: backwards;
+}
+
+.todo-item:nth-child(1) { animation-delay: 0ms; }
+.todo-item:nth-child(2) { animation-delay: 60ms; }
+.todo-item:nth-child(3) { animation-delay: 120ms; }
+.todo-item:nth-child(4) { animation-delay: 180ms; }
+.todo-item:nth-child(5) { animation-delay: 240ms; }
+.todo-item:nth-child(6) { animation-delay: 300ms; }
+.todo-item:nth-child(7) { animation-delay: 360ms; }
+.todo-item:nth-child(8) { animation-delay: 420ms; }
+.todo-item:nth-child(9) { animation-delay: 480ms; }
+.todo-item:nth-child(10) { animation-delay: 540ms; }
 
 .empty-state {
   text-align: center;
   opacity: 0.6;
   padding: 1.5rem;
+}
+
+/* Accessibility: Disable 3D animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .todo-item,
+  .todo-form button,
+  .todo-item button,
+  .todo-form input,
+  .todo-item input[type="checkbox"],
+  .theme-toggle-slider,
+  .theme-toggle-option,
+  .todo-item span {
+    transform: none !important;
+  }
+
+  .todo-item:hover,
+  .todo-form button:hover,
+  .todo-item button:hover,
+  .todo-form input:focus,
+  .todo-item input[type="checkbox"]:hover,
+  .todo-item input[type="checkbox"]:active,
+  .todo-item input[type="checkbox"]:checked {
+    transform: none !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  }
 }

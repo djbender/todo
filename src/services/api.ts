@@ -1,4 +1,5 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
+import { nanoid } from '@reduxjs/toolkit';
 import { mockApi } from './mockApi';
 import type { Todo } from '../types/todo';
 
@@ -53,7 +54,7 @@ export const todosApi = createApi({
         const patchResult = dispatch(
           todosApi.util.updateQueryData('getTodos', undefined, (draft) => {
             draft.push({
-              id: 'temp-' + Date.now(),
+              id: 'temp-' + nanoid(),
               title,
               completed: false,
             });
@@ -65,7 +66,9 @@ export const todosApi = createApi({
             todosApi.util.updateQueryData('getTodos', undefined, (draft) => {
               const tempIndex = draft.findIndex((todo) => todo.id.startsWith('temp-'));
               if (tempIndex !== -1) {
-                draft[tempIndex] = newTodo;
+                draft[tempIndex].id = newTodo.id;
+                draft[tempIndex].title = newTodo.title;
+                draft[tempIndex].completed = newTodo.completed;
               }
             })
           );
