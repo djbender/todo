@@ -16,7 +16,13 @@ export const todosApi = createApi({
           return { error: { status: 500, data: 'Failed to fetch todos' } };
         }
       },
-      providesTags: ['Todo'],
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: 'Todo' as const, id })),
+              { type: 'Todo', id: 'LIST' },
+            ]
+          : [{ type: 'Todo', id: 'LIST' }],
     }),
 
     getTodoById: builder.query<Todo, string>({
@@ -43,7 +49,30 @@ export const todosApi = createApi({
           return { error: { status: 500, data: 'Failed to create todo' } };
         }
       },
-      invalidatesTags: ['Todo'],
+      async onQueryStarted(title, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          todosApi.util.updateQueryData('getTodos', undefined, (draft) => {
+            draft.push({
+              id: 'temp-' + Date.now(),
+              title,
+              completed: false,
+            });
+          })
+        );
+        try {
+          const { data: newTodo } = await queryFulfilled;
+          dispatch(
+            todosApi.util.updateQueryData('getTodos', undefined, (draft) => {
+              const tempIndex = draft.findIndex((todo) => todo.id.startsWith('temp-'));
+              if (tempIndex !== -1) {
+                draft[tempIndex] = newTodo;
+              }
+            })
+          );
+        } catch {
+          patchResult.undo();
+        }
+      },
     }),
 
     updateTodo: builder.mutation<Todo, { id: string; updates: Partial<Todo> }>({
@@ -55,7 +84,7 @@ export const todosApi = createApi({
           return { error: { status: 500, data: 'Failed to update todo' } };
         }
       },
-      invalidatesTags: (_result, _error, { id }) => [{ type: 'Todo', id }, 'Todo'],
+      invalidatesTags: (_result, _error, { id }) => [{ type: 'Todo', id }],
     }),
 
     deleteTodo: builder.mutation<void, string>({
@@ -67,7 +96,21 @@ export const todosApi = createApi({
           return { error: { status: 500, data: 'Failed to delete todo' } };
         }
       },
-      invalidatesTags: ['Todo'],
+      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          todosApi.util.updateQueryData('getTodos', undefined, (draft) => {
+            const index = draft.findIndex((todo) => todo.id === id);
+            if (index !== -1) {
+              draft.splice(index, 1);
+            }
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
     }),
   }),
 });

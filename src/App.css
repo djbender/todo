@@ -6,14 +6,14 @@
 }
 
 .todo-container {
-  background: white;
+  background: light-dark(white, #1a1a1a);
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5));
 }
 
 h1 {
-  color: #333;
+  color: light-dark(#333, #fff);
   margin-bottom: 24px;
 }
 
@@ -26,9 +26,11 @@ h1 {
 .todo-form input {
   flex: 1;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid light-dark(#ddd, #444);
   border-radius: 4px;
   font-size: 14px;
+  background: light-dark(white, #2a2a2a);
+  color: light-dark(#000, #fff);
 }
 
 .todo-form button {
@@ -61,7 +63,7 @@ h1 {
   align-items: center;
   gap: 12px;
   padding: 12px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid light-dark(#eee, #333);
 }
 
 .todo-item:last-child {
@@ -75,11 +77,12 @@ h1 {
 .todo-item span {
   flex: 1;
   font-size: 16px;
+  color: light-dark(#000, #fff);
 }
 
 .todo-item span.completed {
   text-decoration: line-through;
-  color: #888;
+  color: light-dark(#888, #888);
 }
 
 .todo-item button {
@@ -101,14 +104,15 @@ h1 {
   text-align: center;
   padding: 24px;
   font-size: 16px;
+  color: light-dark(#000, #fff);
 }
 
 .error {
-  color: #dc3545;
+  color: light-dark(#dc3545, #ff6b6b);
 }
 
 .empty-state {
   text-align: center;
-  color: #888;
+  color: light-dark(#888, #888);
   padding: 24px;
 }

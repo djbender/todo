@@ -11,16 +11,22 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const mockApi = {
   async getTodos(): Promise<Todo[]> {
+    console.log('[Mock API] GET /todos');
     await delay(500);
+    console.log('[Mock API] Response:', todos);
     return [...todos];
   },
 
   async getTodoById(id: string): Promise<Todo | undefined> {
+    console.log('[Mock API] GET /todos/' + id);
     await delay(300);
-    return todos.find(todo => todo.id === id);
+    const todo = todos.find(todo => todo.id === id);
+    console.log('[Mock API] Response:', todo);
+    return todo;
   },
 
   async createTodo(title: string): Promise<Todo> {
+    console.log('[Mock API] POST /todos', { title });
     await delay(500);
     const newTodo: Todo = {
       id: Date.now().toString(),
@@ -28,19 +34,24 @@ export const mockApi = {
       completed: false,
     };
     todos.push(newTodo);
+    console.log('[Mock API] Response:', newTodo);
     return newTodo;
   },
 
   async updateTodo(id: string, updates: Partial<Todo>): Promise<Todo> {
+    console.log('[Mock API] PATCH /todos/' + id, updates);
     await delay(500);
     const index = todos.findIndex(todo => todo.id === id);
     if (index === -1) throw new Error('Todo not found');
     todos[index] = { ...todos[index], ...updates };
+    console.log('[Mock API] Response:', todos[index]);
     return todos[index];
   },
 
   async deleteTodo(id: string): Promise<void> {
+    console.log('[Mock API] DELETE /todos/' + id);
     await delay(500);
     todos = todos.filter(todo => todo.id !== id);
+    console.log('[Mock API] Response: deleted');
   },
 };
