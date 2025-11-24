@@ -2,11 +2,12 @@
 
 /* Smooth theme transition */
 :root {
-  transition: background-color 2s ease, color 2s ease;
+  --theme-transition: background-color 2s ease, border-color 2s ease, color 2s ease;
+  transition: var(--theme-transition);
 }
 
 body {
-  transition: background-color 2s ease, color 2s ease;
+  transition: var(--theme-transition);
 }
 
 /* Dark mode override - use data-theme attribute instead of prefers-color-scheme */
@@ -79,7 +80,7 @@ main {
   min-height: 44px;
   align-items: center;
   transform-style: preserve-3d;
-  transition: transform 0.6s cubic-bezier(0.34, 0, 0.15, 1);
+  transition: transform 0.6s cubic-bezier(0.34, 0, 0.15, 1), var(--theme-transition);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), inset 0 -2px 4px rgba(0, 0, 0, 0.05);
   will-change: transform;
 }
@@ -157,6 +158,7 @@ main {
   width: calc(50% - 0.375rem);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   transform: translateZ(2px);
+  transition: var(--theme-transition);
 }
 
 .theme-toggle-slider[data-checked="false"]::before {
@@ -171,7 +173,7 @@ main {
   padding: 0.5rem 1rem;
   border-radius: 1.5rem;
   font-size: 0.875rem;
-  transition: color 0.2s ease, transform 0.1s ease, text-shadow 0.2s ease;
+  transition: transform 0.1s ease, text-shadow 0.2s ease, var(--theme-transition);
   z-index: 1;
   white-space: nowrap;
   position: relative;
@@ -200,7 +202,7 @@ main {
 .todo-form input {
   flex: 1;
   transform: translateZ(0);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, var(--theme-transition);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
@@ -218,7 +220,7 @@ main {
 .todo-form button,
 .todo-item button {
   transform: translateZ(0);
-  transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.1s ease;
+  transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.1s ease, var(--theme-transition);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -263,7 +265,7 @@ main {
   margin-bottom: 0.25rem;
   border-radius: 0.25rem;
   transform: translateZ(0);
-  transition: transform 0.3s cubic-bezier(0.23, 1, 0.320, 1), box-shadow 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.23, 1, 0.320, 1), box-shadow 0.3s ease, var(--theme-transition);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -329,7 +331,7 @@ main {
 
 .todo-item span {
   flex: 1;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease, var(--theme-transition);
 }
 
 .todo-item span.completed {
@@ -399,6 +401,7 @@ main {
   pointer-events: auto;
   transform: translateZ(0);
   animation: toastSlideIn 0.3s ease;
+  transition: var(--theme-transition);
 }
 
 .toast.error {
