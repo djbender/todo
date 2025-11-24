@@ -4,9 +4,27 @@ import {
   useCreateTodoMutation,
   useUpdateTodoMutation,
   useDeleteTodoMutation,
+  useReorderTodosMutation,
 } from '../services/api';
 import { DarkModeToggle } from './DarkModeToggle';
 import { toast } from './Toast';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface Todo {
   id: string;
@@ -22,23 +40,48 @@ interface TodoItemProps {
   onDelete: (id: string) => void;
 }
 
-const TodoItem: React.FC<TodoItemProps> = ({ todo, hasAnimated, onAnimationEnd, onToggle, onDelete }) => {
+const SortableTodoItem: React.FC<TodoItemProps> = ({ todo, hasAnimated, onAnimationEnd, onToggle, onDelete }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: todo.id });
+
+  const wrapperStyle = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   return (
-    <li
-      className="todo-item"
-      data-animated={hasAnimated ? 'true' : 'false'}
-      onAnimationEnd={hasAnimated ? undefined : onAnimationEnd}
-    >
-      <input
-        type="checkbox"
-        checked={todo.completed}
-        onChange={() => onToggle(todo.id, todo.completed)}
-      />
-      <span className={todo.completed ? 'completed' : ''}>
-        {todo.title}
-      </span>
-      <button onClick={() => onDelete(todo.id)}>Delete</button>
-    </li>
+    <div ref={setNodeRef} style={wrapperStyle}>
+      <li
+        className={`todo-item ${isDragging ? 'todo-item-dragging' : ''}`}
+        data-animated={hasAnimated ? 'true' : 'false'}
+        onAnimationEnd={hasAnimated ? undefined : onAnimationEnd}
+      >
+        <span
+          className="drag-handle"
+          {...attributes}
+          {...listeners}
+          tabIndex={0}
+          aria-label="Drag handle to reorder todo"
+        >
+          ⋮⋮
+        </span>
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          onChange={() => onToggle(todo.id, todo.completed)}
+        />
+        <span className={todo.completed ? 'completed' : ''}>
+          {todo.title}
+        </span>
+        <button onClick={() => onDelete(todo.id)}>Delete</button>
+      </li>
+    </div>
   );
 };
 
@@ -52,6 +95,14 @@ export const TodoList: React.FC = () => {
   const [createTodo, { isLoading: isCreating }] = useCreateTodoMutation();
   const [updateTodo] = useUpdateTodoMutation();
   const [deleteTodo] = useDeleteTodoMutation();
+  const [reorderTodos] = useReorderTodosMutation();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   // Track when a temp ID becomes a real ID (during render, not in useEffect)
   if (todos) {
@@ -113,6 +164,27 @@ export const TodoList: React.FC = () => {
     }
   };
 
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id || !todos) return;
+
+    const oldIndex = todos.findIndex((t) => t.id === active.id);
+    const newIndex = todos.findIndex((t) => t.id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reordered = arrayMove(todos, oldIndex, newIndex);
+    const orderedIds = reordered.map((t) => t.id);
+
+    try {
+      await reorderTodos(orderedIds).unwrap();
+    } catch (err) {
+      console.error('Failed to reorder todos:', err);
+      toast.error('Failed to reorder todos');
+    }
+  };
+
   if (isLoading) {
     return <main><p>Loading todos...</p></main>;
   }
@@ -141,36 +213,47 @@ export const TodoList: React.FC = () => {
         </button>
       </form>
 
-      <ul className="todo-list">
-        {todos?.map((todo) => {
-          // Use temp ID as stable key if this was previously a temp item
-          let stableKey = todo.id;
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={todos?.map((t) => t.id) || []}
+          strategy={verticalListSortingStrategy}
+        >
+          <ul className="todo-list">
+            {todos?.map((todo) => {
+              // Use temp ID as stable key if this was previously a temp item
+              let stableKey = todo.id;
 
-          if (todo.id.startsWith('temp-')) {
-            // Still a temp item, use as-is
-            stableKey = todo.id;
-          } else {
-            // Real ID - check if we have a mapping from this real ID to a temp ID
-            const tempId = realToTempIdMap.current.get(todo.id);
-            if (tempId) {
-              stableKey = tempId;
-            }
-          }
+              if (todo.id.startsWith('temp-')) {
+                // Still a temp item, use as-is
+                stableKey = todo.id;
+              } else {
+                // Real ID - check if we have a mapping from this real ID to a temp ID
+                const tempId = realToTempIdMap.current.get(todo.id);
+                if (tempId) {
+                  stableKey = tempId;
+                }
+              }
 
-          const hasAnimated = animatedIds.current.has(stableKey);
+              const hasAnimated = animatedIds.current.has(stableKey);
 
-          return (
-            <TodoItem
-              key={stableKey}
-              todo={todo}
-              hasAnimated={hasAnimated}
-              onAnimationEnd={() => animatedIds.current.add(stableKey)}
-              onToggle={handleToggle}
-              onDelete={handleDelete}
-            />
-          );
-        })}
-      </ul>
+              return (
+                <SortableTodoItem
+                  key={stableKey}
+                  todo={todo}
+                  hasAnimated={hasAnimated}
+                  onAnimationEnd={() => animatedIds.current.add(stableKey)}
+                  onToggle={handleToggle}
+                  onDelete={handleDelete}
+                />
+              );
+            })}
+          </ul>
+        </SortableContext>
+      </DndContext>
 
       {todos?.length === 0 && (
         <p className="empty-state">No todos yet. Add one to get started!</p>

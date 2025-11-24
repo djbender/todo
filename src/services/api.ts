@@ -129,6 +129,33 @@ export const todosApi = createApi({
         }
       },
     }),
+
+    reorderTodos: builder.mutation<Todo[], string[]>({
+      queryFn: async (orderedIds) => {
+        try {
+          const data = await mockApi.reorderTodos(orderedIds);
+          return { data };
+        } catch (error) {
+          return { error: { status: 500, data: 'Failed to reorder todos' } };
+        }
+      },
+      async onQueryStarted(orderedIds, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          todosApi.util.updateQueryData('getTodos', undefined, (draft) => {
+            // Optimistically reorder the todos
+            const reordered = orderedIds
+              .map(id => draft.find(todo => todo.id === id))
+              .filter((todo): todo is Todo => todo !== undefined);
+            draft.splice(0, draft.length, ...reordered);
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
+    }),
   }),
 });
 
@@ -138,4 +165,5 @@ export const {
   useCreateTodoMutation,
   useUpdateTodoMutation,
   useDeleteTodoMutation,
+  useReorderTodosMutation,
 } = todosApi;

@@ -5,7 +5,7 @@ import type { Todo } from '../types/todo';
 let todos: Todo[] = [
   { id: nanoid(), title: 'Learn RTK Query', completed: false },
   { id: nanoid(), title: 'Build a todo app', completed: false },
-  { id: 'fail-test', title: '[TEST] This update always fails', completed: false },
+  { id: 'fail-test', title: '[FAIL] This update always fails', completed: false },
 ];
 
 // Helper to simulate network delay
@@ -60,7 +60,28 @@ export const mockApi = {
   async deleteTodo(id: string): Promise<void> {
     console.log('[Mock API] DELETE /todos/' + id);
     await delay(500);
+
+    // Test case: always fail deletes of the test item
+    if (id === 'fail-test') {
+      console.log('[Mock API] Response: Error - simulated failure');
+      throw new Error('Simulated delete failure');
+    }
+
     todos = todos.filter(todo => todo.id !== id);
     console.log('[Mock API] Response: deleted');
+  },
+
+  async reorderTodos(orderedIds: string[]): Promise<Todo[]> {
+    console.log('[Mock API] POST /todos/reorder', orderedIds);
+    await delay(300);
+
+    // Reorder todos array based on orderedIds
+    const reordered = orderedIds
+      .map(id => todos.find(todo => todo.id === id))
+      .filter((todo): todo is Todo => todo !== undefined);
+
+    todos = reordered;
+    console.log('[Mock API] Response:', todos);
+    return [...todos];
   },
 };
