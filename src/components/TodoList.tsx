@@ -35,12 +35,24 @@ interface Todo {
 interface TodoItemProps {
   todo: Todo;
   hasAnimated: boolean;
+  isToggling: boolean;
   onAnimationEnd: () => void;
   onToggle: (id: string, completed: boolean) => void;
   onDelete: (id: string) => void;
 }
 
-const SortableTodoItem: React.FC<TodoItemProps> = ({ todo, hasAnimated, onAnimationEnd, onToggle, onDelete }) => {
+const SortableTodoItem: React.FC<TodoItemProps> = ({ todo, hasAnimated, isToggling, onAnimationEnd, onToggle, onDelete }) => {
+  const checkboxRef = useRef<HTMLInputElement>(null);
+  const wasToggling = useRef(false);
+
+  // Restore focus after DOM updates when toggle completes
+  React.useEffect(() => {
+    if (wasToggling.current && !isToggling) {
+      checkboxRef.current?.focus();
+    }
+    wasToggling.current = isToggling;
+  }, [isToggling]);
+
   const {
     attributes,
     listeners,
@@ -72,8 +84,10 @@ const SortableTodoItem: React.FC<TodoItemProps> = ({ todo, hasAnimated, onAnimat
           ⋮⋮
         </span>
         <input
+          ref={checkboxRef}
           type="checkbox"
           checked={todo.completed}
+          disabled={isToggling}
           onChange={() => onToggle(todo.id, todo.completed)}
         />
         <span className={todo.completed ? 'completed' : ''}>
@@ -87,6 +101,7 @@ const SortableTodoItem: React.FC<TodoItemProps> = ({ todo, hasAnimated, onAnimat
 
 export const TodoList: React.FC = () => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
+  const [togglingIds, setTogglingIds] = useState<Set<string>>(new Set());
   const animatedIds = useRef(new Set<string>());
   const realToTempIdMap = useRef(new Map<string, string>());
   const previousTodos = useRef<Todo[]>([]);
@@ -147,11 +162,19 @@ export const TodoList: React.FC = () => {
   };
 
   const handleToggle = async (id: string, completed: boolean) => {
+    if (togglingIds.has(id)) return;
+    setTogglingIds(prev => new Set(prev).add(id));
     try {
       await updateTodo({ id, updates: { completed: !completed } }).unwrap();
     } catch (err) {
       console.error('Failed to update todo:', err);
       toast.error('Failed to update todo');
+    } finally {
+      setTogglingIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
   };
 
@@ -245,6 +268,7 @@ export const TodoList: React.FC = () => {
                   key={stableKey}
                   todo={todo}
                   hasAnimated={hasAnimated}
+                  isToggling={togglingIds.has(todo.id)}
                   onAnimationEnd={() => animatedIds.current.add(stableKey)}
                   onToggle={handleToggle}
                   onDelete={handleDelete}
