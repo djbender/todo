@@ -7,6 +7,9 @@ function App() {
     <>
       <TodoList />
       <ToastContainer />
+      <footer>
+        No data is persisted — refresh the page to start over.
+      </footer>
     </>
   );
 }

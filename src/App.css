@@ -478,6 +478,20 @@ main {
   }
 }
 
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+footer {
+  margin-top: auto;
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-light);
+  font-size: 0.875rem;
+}
+
 /* Accessibility: Disable 3D animations for users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,
