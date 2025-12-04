@@ -4,7 +4,8 @@ import type { Todo } from '../types/todo';
 // Simulated database
 let todos: Todo[] = [
   { id: nanoid(), title: 'Learn RTK Query', completed: false },
-  { id: nanoid(), title: 'Build a todo app', completed: false },
+  { id: nanoid(), title: 'Build a todo app', completed: true },
+  { id: nanoid(), title: 'Drag items to reorder', completed: false },
   { id: 'fail-test', title: '[FAIL] This update always fails', completed: false },
 ];
 
