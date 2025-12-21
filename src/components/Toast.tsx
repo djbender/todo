@@ -7,13 +7,14 @@ interface Toast {
 }
 
 let addToast: (message: string, type: 'error' | 'success') => void;
+let nextId = 0;
 
 export const ToastContainer = () => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   useEffect(() => {
     addToast = (message: string, type: 'error' | 'success') => {
-      const id = Date.now().toString();
+      const id = (nextId++).toString();
       setToasts(prev => [...prev, { id, message, type }]);
 
       setTimeout(() => {

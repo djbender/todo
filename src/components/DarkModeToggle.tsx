@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react';
 
 export const DarkModeToggle = () => {
-  const [isDark, setIsDark] = useState(() => {
-    // Read from attribute set by inline script to avoid flash
-    if (typeof document !== 'undefined') {
-      return document.documentElement.getAttribute('data-theme') === 'dark';
-    }
-    return false;
-  });
+  const [isDark, setIsDark] = useState(
+    () => document.documentElement.getAttribute('data-theme') === 'dark'
+  );
   const [isInitialized, setIsInitialized] = useState(false);
   const [hasUserPreference, setHasUserPreference] = useState(false);
 
@@ -23,9 +19,10 @@ export const DarkModeToggle = () => {
     if (!isInitialized) return;
 
     document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    setHasUserPreference(true);
-  }, [isDark, isInitialized]);
+    if (hasUserPreference) {
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+  }, [isDark, isInitialized, hasUserPreference]);
 
   // Listen for system preference changes
   useEffect(() => {
@@ -41,6 +38,7 @@ export const DarkModeToggle = () => {
 
   const handleToggle = () => {
     setIsDark(!isDark);
+    setHasUserPreference(true);
   };
 
   return (
