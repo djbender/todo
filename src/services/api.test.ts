@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { todosApi } from './api'
-import { resetMockApi, mockApi } from './mockApi'
+import { resetMockApi } from './mockApi'
 
 const createTestStore = () =>
   configureStore({

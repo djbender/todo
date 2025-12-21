@@ -5,7 +5,7 @@ import { Provider } from 'react-redux'
 import { configureStore } from '@reduxjs/toolkit'
 import { todosApi } from '../services/api'
 import { TodoList } from './TodoList'
-import { ToastContainer, toast } from './Toast'
+import { ToastContainer } from './Toast'
 import { setGetTodosShouldFail } from '../services/mockApi'
 
 const user = userEvent.setup({ delay: null })
