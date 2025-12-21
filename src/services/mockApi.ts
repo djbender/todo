@@ -29,7 +29,7 @@ const delay = (ms: number) =>
     : new Promise(resolve => setTimeout(resolve, ms));
 
 const log = (...args: unknown[]) => {
-  if (import.meta.env.MODE !== 'test') log(...args);
+  if (import.meta.env.MODE !== 'test') console.log(...args);
 };
 
 export const mockApi = {
