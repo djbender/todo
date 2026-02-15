@@ -1,5 +1,6 @@
 import { render, screen, act } from '@testing-library/react'
-import { ToastContainer, toast } from './Toast'
+import { ToastContainer } from './Toast'
+import { toast } from './toastService'
 
 describe('Toast', () => {
   beforeEach(() => {

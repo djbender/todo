@@ -13,7 +13,7 @@ export const todosApi = createApi({
         try {
           const data = await mockApi.getTodos();
           return { data };
-        } catch (error) {
+        } catch {
           return { error: { status: 500, data: 'Failed to fetch todos' } };
         }
       },
@@ -34,7 +34,7 @@ export const todosApi = createApi({
             return { error: { status: 404, data: 'Todo not found' } };
           }
           return { data };
-        } catch (error) {
+        } catch {
           return { error: { status: 500, data: 'Failed to fetch todo' } };
         }
       },
@@ -46,7 +46,7 @@ export const todosApi = createApi({
         try {
           const data = await mockApi.createTodo(title);
           return { data };
-        } catch (error) {
+        } catch {
           return { error: { status: 500, data: 'Failed to create todo' } };
         }
       },
@@ -85,7 +85,7 @@ export const todosApi = createApi({
         try {
           const data = await mockApi.updateTodo(id, updates);
           return { data };
-        } catch (error) {
+        } catch {
           return { error: { status: 500, data: 'Failed to update todo' } };
         }
       },
@@ -113,7 +113,7 @@ export const todosApi = createApi({
         try {
           await mockApi.deleteTodo(id);
           return { data: undefined };
-        } catch (error) {
+        } catch {
           return { error: { status: 500, data: 'Failed to delete todo' } };
         }
       },
@@ -141,7 +141,7 @@ export const todosApi = createApi({
         try {
           const data = await mockApi.reorderTodos(orderedIds);
           return { data };
-        } catch (error) {
+        } catch {
           return { error: { status: 500, data: 'Failed to reorder todos' } };
         }
       },

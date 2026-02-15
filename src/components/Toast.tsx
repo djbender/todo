@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { setAddToast } from './toastService';
 
 interface Toast {
   id: string;
@@ -6,21 +7,20 @@ interface Toast {
   type: 'error' | 'success';
 }
 
-let addToast: (message: string, type: 'error' | 'success') => void;
 let nextId = 0;
 
 export const ToastContainer = () => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   useEffect(() => {
-    addToast = (message: string, type: 'error' | 'success') => {
+    setAddToast((message: string, type: 'error' | 'success') => {
       const id = (nextId++).toString();
       setToasts(prev => [...prev, { id, message, type }]);
 
       setTimeout(() => {
         setToasts(prev => prev.filter(t => t.id !== id));
       }, 3000);
-    };
+    });
   }, []);
 
   return (
@@ -32,9 +32,4 @@ export const ToastContainer = () => {
       ))}
     </div>
   );
-};
-
-export const toast = {
-  error: (message: string) => addToast(message, 'error'),
-  success: (message: string) => addToast(message, 'success'),
 };

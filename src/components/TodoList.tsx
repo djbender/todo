@@ -7,7 +7,7 @@ import {
   useReorderTodosMutation,
 } from '../services/api';
 import { DarkModeToggle } from './DarkModeToggle';
-import { toast } from './Toast';
+import { toast } from './toastService';
 import {
   DndContext,
   closestCenter,
