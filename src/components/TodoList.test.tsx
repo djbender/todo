@@ -7,8 +7,16 @@ import { todosApi } from '../services/api'
 import { TodoList } from './TodoList'
 import { ToastContainer } from './Toast'
 import { setGetTodosShouldFail, setMockTodos } from '../services/mockApi'
+import type { Todo } from '../types/todo'
 
 const user = userEvent.setup({ delay: null })
+
+const defaultTodos: Todo[] = [
+  { id: 'todo-1', title: 'Learn RTK Query', completed: false },
+  { id: 'todo-2', title: 'Build a todo app', completed: true },
+  { id: 'todo-3', title: 'Drag items to reorder', completed: false },
+  { id: 'fail-test', title: '[FAIL] This update always fails', completed: false },
+]
 
 const createTestStore = () =>
   configureStore({
@@ -17,8 +25,26 @@ const createTestStore = () =>
       getDefaultMiddleware().concat(todosApi.middleware),
   })
 
+/** Renders TodoList going through the full RTK Query async pipeline (for loading/error tests). */
 const renderTodoList = () => {
   const store = createTestStore()
+  return render(
+    <Provider store={store}>
+      <TodoList />
+      <ToastContainer />
+    </Provider>
+  )
+}
+
+/**
+ * Pre-seeds both the RTK Query cache (via upsertQueryData) and the mockApi
+ * (for mutations that delegate to mockApi). The component sees cached data
+ * on first render — no async query cycle needed.
+ */
+const renderWithData = async (todos: Todo[] = defaultTodos) => {
+  setMockTodos(todos.map(t => ({ ...t })))
+  const store = createTestStore()
+  await store.dispatch(todosApi.util.upsertQueryData('getTodos', undefined, todos))
   return render(
     <Provider store={store}>
       <TodoList />
@@ -34,31 +60,22 @@ describe('TodoList', () => {
   })
 
   it('renders todos after loading', async () => {
-    renderTodoList()
-    await waitFor(() => {
-      expect(screen.getByText('Learn RTK Query')).toBeInTheDocument()
-    })
+    await renderWithData()
+    expect(screen.getByText('Learn RTK Query')).toBeInTheDocument()
   })
 
   it('renders the header', async () => {
-    renderTodoList()
-    await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Todo' })).toBeInTheDocument()
-    })
+    await renderWithData()
+    expect(screen.getByRole('heading', { name: 'Todo' })).toBeInTheDocument()
   })
 
   it('renders add todo form', async () => {
-    renderTodoList()
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText('Enter a new todo...')).toBeInTheDocument()
-    })
+    await renderWithData()
+    expect(screen.getByPlaceholderText('Enter a new todo...')).toBeInTheDocument()
   })
 
   it('creates a new todo', async () => {
-    renderTodoList()
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText('Enter a new todo...')).toBeInTheDocument()
-    })
+    await renderWithData()
 
     await user.type(screen.getByPlaceholderText('Enter a new todo...'), 'New test todo')
     await user.click(screen.getByRole('button', { name: 'Add Todo' }))
@@ -69,10 +86,7 @@ describe('TodoList', () => {
   })
 
   it('clears input after creating todo', async () => {
-    renderTodoList()
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText('Enter a new todo...')).toBeInTheDocument()
-    })
+    await renderWithData()
 
     const input = screen.getByPlaceholderText('Enter a new todo...')
     await user.type(input, 'Another todo')
@@ -84,10 +98,7 @@ describe('TodoList', () => {
   })
 
   it('toggles todo completion', async () => {
-    renderTodoList()
-    await waitFor(() => {
-      expect(screen.getByText('Learn RTK Query')).toBeInTheDocument()
-    })
+    await renderWithData()
 
     const checkboxes = screen.getAllByRole('checkbox')
     const firstCheckbox = checkboxes[0]
@@ -99,10 +110,7 @@ describe('TodoList', () => {
   })
 
   it('deletes a todo', async () => {
-    renderTodoList()
-    await waitFor(() => {
-      expect(screen.getByText('Learn RTK Query')).toBeInTheDocument()
-    })
+    await renderWithData()
 
     const deleteButtons = screen.getAllByRole('button', { name: 'Delete' })
     await user.click(deleteButtons[0])
@@ -113,10 +121,7 @@ describe('TodoList', () => {
   })
 
   it('does not submit empty todo', async () => {
-    renderTodoList()
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText('Enter a new todo...')).toBeInTheDocument()
-    })
+    await renderWithData()
 
     const initialTodoCount = screen.getAllByRole('listitem').length
     await user.click(screen.getByRole('button', { name: 'Add Todo' }))
@@ -125,10 +130,7 @@ describe('TodoList', () => {
   })
 
   it('shows error toast on toggle failure', async () => {
-    renderTodoList()
-    await waitFor(() => {
-      expect(screen.getByText('[FAIL] This update always fails')).toBeInTheDocument()
-    })
+    await renderWithData()
 
     const checkboxes = screen.getAllByRole('checkbox')
     const failCheckbox = checkboxes[checkboxes.length - 1]
@@ -140,10 +142,7 @@ describe('TodoList', () => {
   })
 
   it('shows error toast on delete failure', async () => {
-    renderTodoList()
-    await waitFor(() => {
-      expect(screen.getByText('[FAIL] This update always fails')).toBeInTheDocument()
-    })
+    await renderWithData()
 
     const deleteButtons = screen.getAllByRole('button', { name: 'Delete' })
     const failDeleteButton = deleteButtons[deleteButtons.length - 1]
@@ -155,10 +154,7 @@ describe('TodoList', () => {
   })
 
   it('ignores duplicate toggle while already toggling', async () => {
-    renderTodoList()
-    await waitFor(() => {
-      expect(screen.getByText('Learn RTK Query')).toBeInTheDocument()
-    })
+    await renderWithData()
 
     const checkboxes = screen.getAllByRole('checkbox')
     const firstCheckbox = checkboxes[0]
@@ -173,12 +169,8 @@ describe('TodoList', () => {
   })
 
   it('shows empty state when no todos', async () => {
-    setMockTodos([])
-    renderTodoList()
-
-    await waitFor(() => {
-      expect(screen.getByText('No todos yet. Add one to get started!')).toBeInTheDocument()
-    })
+    await renderWithData([])
+    expect(screen.getByText('No todos yet. Add one to get started!')).toBeInTheDocument()
   })
 
   it('shows error state when getTodos fails', async () => {
@@ -191,10 +183,7 @@ describe('TodoList', () => {
   })
 
   it('preserves temp ID mapping across renders', async () => {
-    renderTodoList()
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText('Enter a new todo...')).toBeInTheDocument()
-    })
+    await renderWithData()
 
     // Create a todo (triggers temp→real ID mapping)
     await user.type(screen.getByPlaceholderText('Enter a new todo...'), 'Mapped todo')
@@ -214,10 +203,7 @@ describe('TodoList', () => {
   })
 
   it('marks item as animated after animation ends', async () => {
-    renderTodoList()
-    await waitFor(() => {
-      expect(screen.getByText('Learn RTK Query')).toBeInTheDocument()
-    })
+    await renderWithData()
 
     const todoItem = screen.getAllByRole('listitem')[0]
     expect(todoItem.getAttribute('data-animated')).toBe('false')
