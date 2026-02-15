@@ -208,7 +208,11 @@ describe('TodoList', () => {
     const todoItem = screen.getAllByRole('listitem')[0]
     expect(todoItem.getAttribute('data-animated')).toBe('false')
 
-    fireEvent.animationEnd(todoItem)
+    // jsdom 28.1 exposes WebkitAnimation in element.style but lacks
+    // AnimationEvent, causing React to listen for the webkit-prefixed
+    // event name. Dispatch both so the test works regardless.
+    fireEvent(todoItem, new Event('animationend', { bubbles: true }))
+    fireEvent(todoItem, new Event('webkitAnimationEnd', { bubbles: true }))
 
     // Toggle a todo to trigger re-render
     const checkbox = screen.getAllByRole('checkbox')[0]
