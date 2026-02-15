@@ -30,11 +30,13 @@ export const setGetTodosShouldFail = (fail: boolean) => {
 const delay = (ms: number) =>
   import.meta.env.MODE === 'test'
     ? Promise.resolve()
-    : new Promise(resolve => setTimeout(resolve, ms));
+    : /* c8 ignore next -- only runs outside test mode */ new Promise(resolve => setTimeout(resolve, ms));
 
+/* c8 ignore start -- logging disabled in test mode */
 const log = (...args: unknown[]) => {
   if (import.meta.env.MODE !== 'test') console.log(...args);
 };
+/* c8 ignore stop */
 
 export const mockApi = {
   async getTodos(): Promise<Todo[]> {

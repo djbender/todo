@@ -70,7 +70,7 @@ const SortableTodoItem: React.FC<TodoItemProps> = ({ todo, hasAnimated, isToggli
   return (
     <div ref={setNodeRef} style={wrapperStyle}>
       <li
-        className={`todo-item ${isDragging ? 'todo-item-dragging' : ''}`}
+        className={/* c8 ignore next -- isDragging requires E2E */ `todo-item ${isDragging ? 'todo-item-dragging' : ''}`}
         data-animated={hasAnimated ? 'true' : 'false'}
         onAnimationEnd={hasAnimated ? undefined : onAnimationEnd}
       >
@@ -240,7 +240,7 @@ export const TodoList: React.FC = () => {
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={todos?.map((t) => t.id) || []}
+          items={/* c8 ignore next -- todos always defined past loading guard */ todos?.map((t) => t.id) || []}
           strategy={verticalListSortingStrategy}
         >
           <ul className="todo-list">

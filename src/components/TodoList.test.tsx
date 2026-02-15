@@ -154,6 +154,24 @@ describe('TodoList', () => {
     })
   })
 
+  it('ignores duplicate toggle while already toggling', async () => {
+    renderTodoList()
+    await waitFor(() => {
+      expect(screen.getByText('Learn RTK Query')).toBeInTheDocument()
+    })
+
+    const checkboxes = screen.getAllByRole('checkbox')
+    const firstCheckbox = checkboxes[0]
+
+    // Fire two clicks synchronously — second hits togglingIds guard
+    fireEvent.click(firstCheckbox)
+    fireEvent.click(firstCheckbox)
+
+    await waitFor(() => {
+      expect(firstCheckbox).toBeChecked()
+    })
+  })
+
   it('shows empty state when no todos', async () => {
     setMockTodos([])
     renderTodoList()

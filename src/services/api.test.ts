@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { todosApi } from './api'
-import { resetMockApi } from './mockApi'
+import { mockApi, resetMockApi } from './mockApi'
 
 const createTestStore = () =>
   configureStore({
@@ -29,6 +29,13 @@ describe('todosApi', () => {
       const store = createTestStore()
       const result = await store.dispatch(todosApi.endpoints.getTodoById.initiate('nonexistent-id'))
       expect(result.error).toEqual({ status: 404, data: 'Todo not found' })
+    })
+
+    it('returns 500 error when mockApi throws', async () => {
+      const store = createTestStore()
+      vi.spyOn(mockApi, 'getTodoById').mockRejectedValueOnce(new Error('boom'))
+      const result = await store.dispatch(todosApi.endpoints.getTodoById.initiate('any-id'))
+      expect(result.error).toEqual({ status: 500, data: 'Failed to fetch todo' })
     })
   })
 
@@ -86,6 +93,27 @@ describe('todosApi', () => {
       const state = store.getState()
       const cached = todosApi.endpoints.getTodos.select()(state)
       expect(cached.data?.map(t => t.id)).toEqual(reversed)
+    })
+
+    it('returns error when reorder fails', async () => {
+      const store = createTestStore()
+      vi.spyOn(mockApi, 'reorderTodos').mockRejectedValueOnce(new Error('boom'))
+      const result = await store.dispatch(todosApi.endpoints.reorderTodos.initiate(['a']))
+      expect(result.error).toEqual({ status: 500, data: 'Failed to reorder todos' })
+    })
+
+    it('rolls back optimistic reorder on failure', async () => {
+      const store = createTestStore()
+      const initial = await store.dispatch(todosApi.endpoints.getTodos.initiate())
+      const originalIds = initial.data!.map(t => t.id)
+
+      vi.spyOn(mockApi, 'reorderTodos').mockRejectedValueOnce(new Error('boom'))
+      await store.dispatch(todosApi.endpoints.reorderTodos.initiate([...originalIds].reverse()))
+
+      // Cache should roll back to original order
+      const state = store.getState()
+      const cached = todosApi.endpoints.getTodos.select()(state)
+      expect(cached.data?.map(t => t.id)).toEqual(originalIds)
     })
   })
 })

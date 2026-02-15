@@ -8,6 +8,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Build: `npm run build` - Type-checks (`tsc -b`) then builds with Vite
 - Lint: `npm run lint` - Runs ESLint on all files
 - Preview: `npm run preview` - Previews production build locally
+- Test: `npm test` - Runs unit tests once
+- Test (watch): `npm run test:watch` - Runs unit tests in watch mode
+- Test (coverage): `npm run test:coverage` - Unit tests with coverage report
+- Test (e2e): `npm run test:e2e` - Runs Playwright E2E tests headless
+- Test (e2e ui): `npm run test:e2e:ui` - Opens interactive Playwright UI with DOM snapshots and traces
+- Test (all): `npm run test:all` - Full suite: lint, build, coverage, e2e
 
 ## Architecture
 
