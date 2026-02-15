@@ -6,7 +6,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import { todosApi } from '../services/api'
 import { TodoList } from './TodoList'
 import { ToastContainer } from './Toast'
-import { setGetTodosShouldFail } from '../services/mockApi'
+import { setGetTodosShouldFail, setMockTodos } from '../services/mockApi'
 
 const user = userEvent.setup({ delay: null })
 
@@ -155,15 +155,8 @@ describe('TodoList', () => {
   })
 
   it('shows empty state when no todos', async () => {
+    setMockTodos([])
     renderTodoList()
-    await waitFor(() => {
-      expect(screen.getByText('Learn RTK Query')).toBeInTheDocument()
-    })
-
-    const deleteButtons = screen.getAllByRole('button', { name: 'Delete' })
-    for (const btn of deleteButtons) {
-      await user.click(btn)
-    }
 
     await waitFor(() => {
       expect(screen.getByText('No todos yet. Add one to get started!')).toBeInTheDocument()

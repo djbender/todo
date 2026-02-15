@@ -18,6 +18,10 @@ export const resetMockApi = () => {
   shouldFailGetTodos = false;
 };
 
+export const setMockTodos = (newTodos: Todo[]) => {
+  todos = newTodos;
+};
+
 export const setGetTodosShouldFail = (fail: boolean) => {
   shouldFailGetTodos = fail;
 };
