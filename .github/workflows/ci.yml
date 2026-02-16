@@ -89,10 +89,37 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
+  deploy-coverage:
+    name: Deploy Coverage to Pages
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}coverage/
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: site/coverage/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
   ci:
     name: CI
     if: always()
-    needs: [lint, build, test, test-e2e]
+    needs: [lint, build, test, test-e2e, deploy-coverage]
     runs-on: ubuntu-latest
     timeout-minutes: 1
     steps:
