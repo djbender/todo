@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   useGetTodosQuery,
   useCreateTodoMutation,
@@ -102,6 +102,8 @@ const SortableTodoItem: React.FC<TodoItemProps> = ({ todo, hasAnimated, isToggli
 export const TodoList: React.FC = () => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [togglingIds, setTogglingIds] = useState<Set<string>>(new Set());
+  // Render info: stable keys and animation state, computed in useEffect to avoid ref reads during render
+  const [todoRenderInfo, setTodoRenderInfo] = useState(new Map<string, { stableKey: string; hasAnimated: boolean }>());
   const animatedIds = useRef(new Set<string>());
   const realToTempIdMap = useRef(new Map<string, string>());
   const previousTodos = useRef<Todo[]>([]);
@@ -119,15 +121,16 @@ export const TodoList: React.FC = () => {
     })
   );
 
-  // Track when a temp ID becomes a real ID (during render, not in useEffect)
-  if (todos) {
+  // Track when a temp ID becomes a real ID, then compute stable keys and animation state.
+  // All ref reads happen in useEffect to satisfy react-hooks/refs rule.
+  useEffect(() => {
+    if (!todos) return;
+
     const usedTempIds = new Set<string>();
 
     todos.forEach((currentTodo) => {
       // Skip if already mapped
-      if (realToTempIdMap.current.has(currentTodo.id)) {
-        return;
-      }
+      if (realToTempIdMap.current.has(currentTodo.id)) return;
 
       // Find if this todo existed before with a temp ID that hasn't been used yet
       const previousTodo = previousTodos.current.find(
@@ -146,7 +149,23 @@ export const TodoList: React.FC = () => {
     });
 
     previousTodos.current = [...todos];
-  }
+
+    // Build render info map from refs (safe inside useEffect)
+    const map = new Map<string, { stableKey: string; hasAnimated: boolean }>();
+    todos.forEach((todo) => {
+      let stableKey: string;
+      if (todo.id.startsWith('temp-')) {
+        // Still a temp item, use as-is
+        stableKey = todo.id;
+      } else {
+        // Real ID - check if we have a mapping from this real ID to a temp ID
+        const tempId = realToTempIdMap.current.get(todo.id);
+        stableKey = tempId ?? todo.id;
+      }
+      map.set(todo.id, { stableKey, hasAnimated: animatedIds.current.has(stableKey) });
+    });
+    setTodoRenderInfo(map);
+  }, [todos]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -246,20 +265,7 @@ export const TodoList: React.FC = () => {
           <ul className="todo-list">
             {todos?.map((todo) => {
               // Use temp ID as stable key if this was previously a temp item
-              let stableKey = todo.id;
-
-              if (todo.id.startsWith('temp-')) {
-                // Still a temp item, use as-is
-                stableKey = todo.id;
-              } else {
-                // Real ID - check if we have a mapping from this real ID to a temp ID
-                const tempId = realToTempIdMap.current.get(todo.id);
-                if (tempId) {
-                  stableKey = tempId;
-                }
-              }
-
-              const hasAnimated = animatedIds.current.has(stableKey);
+              const { stableKey, hasAnimated } = todoRenderInfo.get(todo.id) ?? { stableKey: todo.id, hasAnimated: false };
 
               return (
                 <SortableTodoItem
