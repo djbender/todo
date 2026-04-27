@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { waitFor } from '../test/setup'
 import userEvent from '@testing-library/user-event'
@@ -8,6 +9,18 @@ import { TodoList } from './TodoList'
 import { ToastContainer } from './Toast'
 import { setGetTodosShouldFail, setMockTodos } from '../services/mockApi'
 import type { Todo } from '../types/todo'
+import * as sortableModule from '@dnd-kit/sortable'
+
+// eslint-disable-next-line no-var
+var restoreUseSortable: () => void = () => {}
+
+vi.mock('@dnd-kit/sortable', async (importOriginal) => {
+  const mod = await importOriginal<typeof import('@dnd-kit/sortable')>()
+  const realImpl = (...args: Parameters<typeof mod.useSortable>) => mod.useSortable(...args)
+  // var is hoisted above vi.mock so this assignment is safe
+  restoreUseSortable = () => vi.mocked(sortableModule.useSortable).mockImplementation(realImpl)
+  return { ...mod, useSortable: vi.fn().mockImplementation(realImpl) }
+})
 
 const user = userEvent.setup({ delay: null })
 
@@ -221,6 +234,35 @@ describe('TodoList', () => {
     await waitFor(() => {
       expect(todoItem.getAttribute('data-animated')).toBe('true')
     })
+  })
+
+  it('applies todo-item-dragging class when isDragging', async () => {
+    vi.mocked(sortableModule.useSortable).mockImplementation(() => ({
+      isDragging: true,
+      active: null,
+      activeIndex: -1,
+      attributes: { role: 'button', tabIndex: 0, 'aria-disabled': false, 'aria-pressed': undefined, 'aria-roledescription': 'sortable', 'aria-describedby': '' },
+      data: { current: { sortable: { containerId: '', index: 0, items: [] } } },
+      rect: { current: null },
+      index: 0,
+      newIndex: 0,
+      items: [],
+      isOver: false,
+      isSorting: false,
+      listeners: undefined,
+      node: { current: null },
+      overIndex: -1,
+      over: null,
+      setNodeRef: vi.fn(),
+      setActivatorNodeRef: vi.fn(),
+      setDroppableNodeRef: vi.fn(),
+      setDraggableNodeRef: vi.fn(),
+      transform: null,
+      transition: undefined,
+    }))
+    await renderWithData([{ id: 'todo-1', title: 'Dragging todo', completed: false }])
+    expect(document.querySelector('.todo-item-dragging')).toBeInTheDocument()
+    restoreUseSortable()
   })
 
 })

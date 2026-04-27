@@ -27,10 +27,11 @@ export const setGetTodosShouldFail = (fail: boolean) => {
 };
 
 // Helper to simulate network delay
-const delay = (ms: number) =>
-  import.meta.env.MODE === 'test'
-    ? Promise.resolve()
-    : /* c8 ignore next -- only runs outside test mode */ new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => {
+  if (import.meta.env.MODE === 'test') return Promise.resolve()
+  /* c8 ignore next */
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
 
 /* c8 ignore start -- logging disabled in test mode */
 const log = (...args: unknown[]) => {
