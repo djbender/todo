@@ -1,8 +1,22 @@
+import { vi } from 'vitest'
 import { mockApi, resetMockApi } from './mockApi'
 
 describe('mockApi', () => {
   beforeEach(() => {
     resetMockApi()
+  })
+
+  describe('delay (via getTodos)', () => {
+    it('uses setTimeout when not in test mode', async () => {
+      vi.useFakeTimers()
+      vi.stubEnv('MODE', 'development')
+      const promise = mockApi.getTodos()
+      vi.runAllTimers()
+      const todos = await promise
+      expect(todos).toBeDefined()
+      vi.useRealTimers()
+      vi.unstubAllEnvs()
+    })
   })
 
   describe('getTodoById', () => {
