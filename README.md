@@ -4,19 +4,23 @@ React + TypeScript todo app with Redux Toolkit and RTK Query.
 
 ## Stack
 
-- React 18 + TypeScript
+- React 19 + TypeScript
 - Redux Toolkit + RTK Query
 - Vite
 
 ## Commands
 
 ```bash
-npm run dev       # dev server
-npm run build     # typecheck + build
-npm run lint      # eslint
-npm run preview   # preview prod build
-npm run test      # tests in watch mode
-npm run test:run  # tests once + coverage
+npm run dev            # dev server
+npm run build          # typecheck + build
+npm run lint           # eslint
+npm run preview        # preview prod build
+npm run test           # unit tests (one-shot)
+npm run test:watch     # unit tests in watch mode
+npm run test:coverage  # unit tests with coverage
+npm run test:e2e       # playwright e2e
+npm run test:e2e:ui    # playwright UI mode
+npm run test:all       # lint + build + coverage + e2e
 ```
 
 ## Deploy to Dokku
