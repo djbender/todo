@@ -8,6 +8,23 @@ React + TypeScript todo app with Redux Toolkit and RTK Query.
 - Redux Toolkit + RTK Query
 - Vite
 
+## Setup
+
+Requires the Node.js version pinned in [`.node-version`](.node-version) and npm.
+
+```bash
+# Install dependencies
+npm install
+
+# Install Playwright browsers (required for e2e tests)
+npx playwright install --with-deps chromium
+
+# Start dev server
+npm run dev
+```
+
+Verify the setup with `npm run test:all`.
+
 ## Commands
 
 ```bash
