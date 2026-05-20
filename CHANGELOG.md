@@ -2,6 +2,9 @@
 
 Reverse chronological by date.
 
+## 2026-05-20
+- docs: add development setup section to README
+
 ## 2026-05-09
 - docs: fix React version and update test script list in README (#118)
 - build: enforce react/react-dom version sync (#117)
